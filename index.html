@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livestream Overlay met Weer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: transparent; /* Doorzichtige achtergrond voor de hele pagina */
+        }
+
+        .overlay {
+            position: absolute;
+            bottom: 20px; /* Iets boven de onderkant */
+            width: 100%;
+            background: none; /* Geen achtergrond, volledig doorzichtig */
+            color: white; /* Witte tekst */
+            padding: 10px;
+            text-align: center;
+            font-size: 20px;
+            box-sizing: border-box;
+        }
+
+        .overlay span {
+            display: inline-block;
+            animation: fadeIn 1s ease-in-out; /* Subtiele fade-in animatie */
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <span id="weather-text">Weer in Rotterdam wordt geladen...</span>
+    </div>
+
+    <script>
+        // Jouw OpenWeatherMap API-sleutel (haal deze op via openweathermap.org)
+        const apiKey = 92dd69c88e9fd56c6da206b524da4061; // Vervang dit door je eigen API-sleutel
+        const city = "Rotterdam,NL";
+        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=nl`;
+
+        // Functie om weerdata op te halen
+        async function fetchWeather() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (data.cod === 200) {
+                    const temp = data.main.temp;
+                    const description = data.weather[0].description;
+                    const weatherText = `Weer in Rotterdam: ${temp}°C, ${description}`;
+                    document.getElementById("weather-text").textContent = weatherText;
+                } else {
+                    document.getElementById("weather-text").textContent = "Kan weerdata niet laden.";
+                }
+            } catch (error) {
+                document.getElementById("weather-text").textContent = "Fout bij het ophalen van weerdata.";
+                console.error("Fout:", error);
+            }
+        }
+
+        // Haal het weer op bij het laden van de pagina
+        fetchWeather();
+
+        // Ververs het weer elke 10 minuten (600000 ms)
+        setInterval(fetchWeather, 600000);
+
+        // Optioneel: wissel met extra berichten
+        const extraMessages = [
+            "Volg me voor meer updates!",
+            "Bedankt voor het kijken!"
+        ];
+        let index = 0;
+        const overlayText = document.getElementById("weather-text");
+
+        setInterval(() => {
+            index = (index + 1) % (extraMessages.length + 1);
+            if (index === 0) {
+                fetchWeather(); // Toon weerdata opnieuw
+            } else {
+                overlayText.textContent = extraMessages[index - 1];
+            }
+        }, 5000); // Wissel elke 5 seconden
+    </script>
+</body>
+</html>
