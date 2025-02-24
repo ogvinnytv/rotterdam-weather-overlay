@@ -34,9 +34,18 @@
         #wind { font-size: 14px; }
         #humidity { font-size: 14px; }
         #sun { font-size: 14px; }
+        #timeLabel {
+            position: absolute;
+            top: 20px; /* Een stukje lager */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px; /* Zelfde grootte als temperatuur */
+            color: white;
+            animation: fadeIn 1s ease-in-out;
+        }
         #localTime {
             position: absolute;
-            top: 10px;
+            top: 40px; /* Een stukje lager, onder "Local Time" */
             left: 50%;
             transform: translateX(-50%);
             font-size: 16px; /* Zelfde grootte als temperatuur */
@@ -46,9 +55,9 @@
         #map {
             position: absolute;
             top: 10px;
-            right: 10px;
-            width: 120px; /* Iets groter gemaakt */
-            height: 120px; /* Iets groter gemaakt */
+            right: 20px; /* Een klein stukje naar links (was 10px, nu 20px) */
+            width: 120px; /* Blijft zoals gevraagd */
+            height: 120px; /* Blijft zoals gevraagd */
             border-radius: 50%;
             overflow: hidden;
             border: 2px solid white;
@@ -83,6 +92,7 @@
         <span id="sun">Loading sun times...</span>
     </div>
     <div id="map"></div>
+    <div id="timeLabel">Local Time</div>
     <div id="localTime">Loading time...</div>
     <div id="liveLocation">live location</div>
 
@@ -133,7 +143,7 @@
         let map;
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 15, // Meer ingezoomd, zoals gevraagd
+                zoom: 15, // Blijft meer ingezoomd, zoals gevraagd
                 center: { lat: lat, lng: lon },
                 mapTypeId: "roadmap",
                 disableDefaultUI: true,
