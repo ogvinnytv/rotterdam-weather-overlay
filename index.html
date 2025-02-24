@@ -34,18 +34,41 @@
         #wind { font-size: 14px; }
         #humidity { font-size: 14px; }
         #sun { font-size: 14px; }
+        #localTime {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px; /* Zelfde grootte als temperatuur */
+            color: white;
+            animation: fadeIn 1s ease-in-out;
+        }
         #map {
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 100px;
-            height: 100px;
+            width: 120px; /* Iets groter gemaakt */
+            height: 120px; /* Iets groter gemaakt */
             border-radius: 50%;
             overflow: hidden;
             border: 2px solid white;
         }
+        #liveLocation {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px; /* Klein, niet te groot */
+            color: darkred; /* Donkerrood */
+            animation: blink 2s infinite; /* Langzaam knipperen (2 seconden per cyclus) */
+        }
         @keyframes fadeIn {
             0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; } /* Minder fel, langzaam knipperen */
             100% { opacity: 1; }
         }
     </style>
@@ -60,6 +83,8 @@
         <span id="sun">Loading sun times...</span>
     </div>
     <div id="map"></div>
+    <div id="localTime">Loading time...</div>
+    <div id="liveLocation">live location</div>
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCabgR-c8vRUOoXZIzaamRA1Z7QMY1Za8s&callback=initMap" async defer></script>
     <script>
@@ -108,7 +133,7 @@
         let map;
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 12,
+                zoom: 15, // Meer ingezoomd, zoals gevraagd
                 center: { lat: lat, lng: lon },
                 mapTypeId: "roadmap",
                 disableDefaultUI: true,
@@ -151,6 +176,17 @@
                 fetchWeather();
             }
         }
+
+        // Voeg lokale tijd toe (in Engels, 24-uurs formaat)
+        function updateLocalTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+            document.getElementById("localTime").textContent = timeString;
+        }
+
+        // Update tijd elke minuut
+        setInterval(updateLocalTime, 60000);
+        updateLocalTime(); // Initialiseer meteen
 
         fetchWeather();
         updateLocation();
