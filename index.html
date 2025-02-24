@@ -61,7 +61,7 @@
     </div>
     <div id="map"></div>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key="AIzaSyD9u8v9Crw8rHMYUTp6FbrkRdOvde_uTa4"&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=aizasyd9u8v9crw8rhmyutp6fbrkrdovde_uta4&callback=initMap" async defer></script>
     <script>
         const apiKey = "92dd69c88e9fd56c6da206b524da4061"; // OpenWeather API-sleutel
         let lat = 51.9225; // Standaard Rotterdam
@@ -82,4 +82,79 @@
                     
                     document.getElementById("city").textContent = `Weather in ${data.name}`;
                     document.getElementById("temp").textContent = `${temp}°C`;
-                    document.getElementById("desc").
+                    document.getElementById("desc").textContent = description;
+                    document.getElementById("wind").textContent = `Wind: ${windSpeed} m/s`;
+                    document.getElementById("humidity").textContent = `Humidity: ${humidity}%`;
+                    document.getElementById("sun").textContent = `Sun: ${sunrise} - ${sunset}`;
+                } else {
+                    document.getElementById("city").textContent = "Weather unavailable";
+                    document.getElementById("temp").textContent = "N/A";
+                    document.getElementById("desc").textContent = "Data not available";
+                    document.getElementById("wind").textContent = "Wind: N/A";
+                    document.getElementById("humidity").textContent = "Humidity: N/A";
+                    document.getElementById("sun").textContent = "Sun: N/A";
+                }
+            } catch (error) {
+                document.getElementById("city").textContent = "Weather error";
+                document.getElementById("temp").textContent = "Error";
+                document.getElementById("desc").textContent = "Error fetching weather";
+                document.getElementById("wind").textContent = "Wind: Error";
+                document.getElementById("humidity").textContent = "Humidity: Error";
+                document.getElementById("sun").textContent = "Sun: Error";
+                console.error("Error:", error);
+            }
+        }
+
+        let map;
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+                center: { lat: lat, lng: lon },
+                mapTypeId: "roadmap",
+                disableDefaultUI: true,
+                styles: [{ featureType: "all", stylers: [{ saturation: -20 }] }]
+            });
+            new google.maps.Marker({
+                position: { lat: lat, lng: lon },
+                map: map,
+                title: "You are here"
+            });
+        }
+
+        function updateLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        lat = position.coords.latitude;
+                        lon = position.coords.longitude;
+                        map.setCenter({ lat: lat, lng: lon });
+                        const marker = new google.maps.Marker({
+                            position: { lat: lat, lng: lon },
+                            map: map,
+                            title: "You are here"
+                        });
+                        fetchWeather(); // Update weer met nieuwe locatie
+                    },
+                    (error) => {
+                        console.log("Location access denied, using Rotterdam:", error);
+                        lat = 51.9225;
+                        lon = 4.4792;
+                        map.setCenter({ lat: lat, lng: lon });
+                        fetchWeather();
+                    }
+                );
+            } else {
+                console.log("Geolocation not supported, using Rotterdam");
+                lat = 51.9225;
+                lon = 4.4792;
+                map.setCenter({ lat: lat, lng: lon });
+                fetchWeather();
+            }
+        }
+
+        fetchWeather();
+        updateLocation();
+        setInterval(updateLocation, 300000); // Kaart en weer updaten elke 5 minuten
+    </script>
+</body>
+</html>
