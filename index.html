@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Overlay</title>
+    <title>Weather & Live Map Overlay</title>
     <style>
         body {
             margin: 0;
@@ -14,22 +14,36 @@
         }
         .overlay {
             position: absolute;
-            top: 10px; /* Naar boven */
-            left: 10px; /* Naar links */
-            width: auto; /* Alleen de breedte van de tekst */
+            top: 10px;
+            left: 10px;
+            width: auto;
             background: none;
             color: white;
-            padding: 5px; /* Minder padding voor compacter formaat */
-            text-align: left; /* Links uitgelijnd */
+            padding: 5px;
+            text-align: left;
             box-sizing: border-box;
         }
         .overlay span {
             display: block;
             animation: fadeIn 1s ease-in-out;
+            line-height: 1.2;
         }
-        #city { font-size: 18px; } /* Kleiner */
+        #city { font-size: 18px; }
         #temp { font-size: 16px; }
         #desc { font-size: 14px; }
+        #wind { font-size: 14px; }
+        #humidity { font-size: 14px; }
+        #sun { font-size: 14px; }
+        #map {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid white;
+        }
         @keyframes fadeIn {
             0% { opacity: 0; }
             100% { opacity: 1; }
@@ -41,38 +55,31 @@
         <span id="city">Weather in Rotterdam</span>
         <span id="temp">Loading temperature...</span>
         <span id="desc">Loading weather...</span>
+        <span id="wind">Loading wind...</span>
+        <span id="humidity">Loading humidity...</span>
+        <span id="sun">Loading sun times...</span>
     </div>
+    <div id="map"></div>
 
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
     <script>
-        const apiKey = "92dd69c88e9fd56c6da206b524da4061"; // Jouw API-sleutel
-        const city = "Rotterdam,NL";
-        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=en`;
-        
+        const apiKey = "92dd69c88e9fd56c6da206b524da4061"; // OpenWeather API-sleutel
+        let lat = 51.9225; // Standaard Rotterdam
+        let lon = 4.4792;
+
         async function fetchWeather() {
+            const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=en`;
             try {
-                const response = await fetch(apiUrl);
+                const response = await fetch(weatherUrl);
                 const data = await response.json();
                 if (data.cod === 200) {
                     const temp = data.main.temp;
                     const description = data.weather[0].description;
-                    document.getElementById("city").textContent = "Weather in Rotterdam";
+                    const windSpeed = data.wind.speed;
+                    const humidity = data.main.humidity;
+                    const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    
+                    document.getElementById("city").textContent = `Weather in ${data.name}`;
                     document.getElementById("temp").textContent = `${temp}°C`;
-                    document.getElementById("desc").textContent = description;
-                } else {
-                    document.getElementById("city").textContent = "Weather in Rotterdam";
-                    document.getElementById("temp").textContent = "Unavailable";
-                    document.getElementById("desc").textContent = "Weather data unavailable";
-                }
-            } catch (error) {
-                document.getElementById("city").textContent = "Weather in Rotterdam";
-                document.getElementById("temp").textContent = "Error";
-                document.getElementById("desc").textContent = "Error fetching weather";
-                console.error("Error:", error);
-            }
-        }
-        
-        fetchWeather();
-        setInterval(fetchWeather, 600000);
-    </script>
-</body>
-</html>
+                    document.getElementById("desc").
