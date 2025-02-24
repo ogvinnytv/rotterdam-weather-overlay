@@ -36,40 +36,41 @@
         #sun { font-size: 14px; }
         #timeLabel {
             position: absolute;
-            top: 20px; /* Een stukje lager */
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 16px; /* Zelfde grootte als temperatuur */
+            font-size: 16px;
             color: white;
             animation: fadeIn 1s ease-in-out;
         }
         #localTime {
             position: absolute;
-            top: 40px; /* Een stukje lager, onder "Local Time" */
+            top: 40px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 16px; /* Zelfde grootte als temperatuur */
+            font-size: 16px;
             color: white;
             animation: fadeIn 1s ease-in-out;
         }
         #map {
             position: absolute;
             top: 10px;
-            right: 20px; /* Een klein stukje naar links (was 10px, nu 20px) */
-            width: 120px; /* Blijft zoals gevraagd */
-            height: 120px; /* Blijft zoals gevraagd */
+            right: 20px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             overflow: hidden;
             border: 2px solid white;
         }
         #liveLocation {
             position: absolute;
-            bottom: 10px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 12px; /* Klein, niet te groot */
-            color: darkred; /* Donkerrood */
-            animation: blink 2s infinite; /* Langzaam knipperen (2 seconden per cyclus) */
+            font-size: 12px;
+            color: darkred;
+            animation: blink 2s infinite;
+            z-index: 1000;
         }
         @keyframes fadeIn {
             0% { opacity: 0; }
@@ -77,7 +78,7 @@
         }
         @keyframes blink {
             0% { opacity: 1; }
-            50% { opacity: 0.3; } /* Minder fel, langzaam knipperen */
+            50% { opacity: 0.3; }
             100% { opacity: 1; }
         }
     </style>
@@ -143,7 +144,7 @@
         let map;
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 15, // Blijft meer ingezoomd, zoals gevraagd
+                zoom: 15,
                 center: { lat: lat, lng: lon },
                 mapTypeId: "roadmap",
                 disableDefaultUI: true,
@@ -162,6 +163,7 @@
                     (position) => {
                         lat = position.coords.latitude;
                         lon = position.coords.longitude;
+                        console.log("Current position:", lat, lon); // Extra logging voor debugging
                         map.setCenter({ lat: lat, lng: lon });
                         const marker = new google.maps.Marker({
                             position: { lat: lat, lng: lon },
@@ -171,7 +173,7 @@
                         fetchWeather(); // Update weer met nieuwe locatie
                     },
                     (error) => {
-                        console.log("Location access denied, using Rotterdam:", error);
+                        console.log("Location error:", error.code, error.message); // Meer details over de fout
                         lat = 51.9225;
                         lon = 4.4792;
                         map.setCenter({ lat: lat, lng: lon });
