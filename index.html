@@ -14,7 +14,7 @@
         }
         .overlay {
             position: absolute;
-            top: 10px;
+            top: 5px; /* Hoger, dichter bij de bovenrand */
             left: 10px;
             width: auto;
             background: none;
@@ -36,7 +36,7 @@
         #sun { font-size: 14px; }
         #timeLabel {
             position: absolute;
-            top: 20px;
+            top: 5px; /* Hoger, dichter bij de bovenrand */
             left: 50%;
             transform: translateX(-50%);
             font-size: 16px;
@@ -45,7 +45,7 @@
         }
         #localTime {
             position: absolute;
-            top: 40px;
+            top: 25px; /* Hoger, onder "Local Time", dichter bij de bovenrand */
             left: 50%;
             transform: translateX(-50%);
             font-size: 16px;
@@ -54,8 +54,8 @@
         }
         #map {
             position: absolute;
-            top: 10px;
-            right: 20px;
+            top: 5px; /* Hoger, dichter bij de bovenrand */
+            right: 10px;
             width: 120px;
             height: 120px;
             border-radius: 50%;
@@ -64,13 +64,13 @@
         }
         #liveLocation {
             position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 140px; /* Net onder de kaart (120px hoogte + 20px marge), intact gelaten */
+            right: 20px;
             font-size: 12px;
-            color: darkred;
+            color: #ff0000; /* Fellere rode kleur */
             animation: blink 2s infinite;
             z-index: 1000;
+            background: rgba(0, 0, 0, 0.5); /* Lichte achtergrond voor contrast */
         }
         @keyframes fadeIn {
             0% { opacity: 0; }
@@ -78,7 +78,7 @@
         }
         @keyframes blink {
             0% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.6; }
             100% { opacity: 1; }
         }
     </style>
@@ -163,22 +163,23 @@
                     (position) => {
                         lat = position.coords.latitude;
                         lon = position.coords.longitude;
-                        console.log("Current position:", lat, lon); // Extra logging voor debugging
+                        console.log("Current position:", lat, lon);
                         map.setCenter({ lat: lat, lng: lon });
                         const marker = new google.maps.Marker({
                             position: { lat: lat, lng: lon },
                             map: map,
                             title: "You are here"
                         });
-                        fetchWeather(); // Update weer met nieuwe locatie
+                        fetchWeather();
                     },
                     (error) => {
-                        console.log("Location error:", error.code, error.message); // Meer details over de fout
+                        console.log("Location error:", error.code, error.message);
                         lat = 51.9225;
                         lon = 4.4792;
                         map.setCenter({ lat: lat, lng: lon });
                         fetchWeather();
-                    }
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
             } else {
                 console.log("Geolocation not supported, using Rotterdam");
@@ -198,11 +199,11 @@
 
         // Update tijd elke minuut
         setInterval(updateLocalTime, 60000);
-        updateLocalTime(); // Initialiseer meteen
+        updateLocalTime();
 
         fetchWeather();
         updateLocation();
-        setInterval(updateLocation, 300000); // Kaart en weer updaten elke 5 minuten
+        setInterval(updateLocation, 300000);
     </script>
 </body>
 </html>
