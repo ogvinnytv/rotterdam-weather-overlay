@@ -2,89 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Weather & Live Map Overlay</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            font-family: 'Arial Black', 'Arial', sans-serif; /* Scherper, dikker lettertype */
+            font-family: 'Arial Black', 'Arial', sans-serif;
             background: transparent;
-            -webkit-font-smoothing: antialiased; /* Verbeterde scherpte op webviews */
-            -moz-osx-font-smoothing: grayscale; /* Voor Firefox */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .overlay {
+        .weather {
             position: absolute;
-            top: 0; /* Tegen de bovenrand, linksboven */
+            top: 0; /* Linksboven, tegen de bovenrand */
             left: 0; /* Tegen de linker rand */
-            width: auto;
-            background: transparent; /* Volledig transparant, zoals gevraagd */
-            color: white; /* Felle witte letters */
+            background: transparent;
+            color: white;
             padding: 5px;
             text-align: left;
-            box-sizing: border-box;
             z-index: 1001;
-            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); /* Extra scherpte en contrast */
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
         }
-        .overlay span {
+        .weather span {
             display: block;
             animation: fadeIn 1s ease-in-out;
             line-height: 1.2;
         }
-        #city { font-size: 22px; /* Groot en scherp */ }
-        #temp { font-size: 20px; /* Groot en scherp */ }
-        #desc { font-size: 18px; /* Groot en scherp */ }
-        #wind { font-size: 18px; /* Groot en scherp */ }
-        #humidity { font-size: 18px; /* Groot en scherp */ }
-        #sun { font-size: 18px; /* Groot en scherp */ }
-        #timeLabel {
-            position: absolute;
-            top: 0; /* Tegen de bovenrand, middenboven */
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 20px; /* Groot en scherp */
-            color: white; /* Felle witte letters */
-            background: transparent; /* Volledig transparant */
-            padding: 2px 12px;
-            animation: fadeIn 1s ease-in-out;
-            z-index: 1001;
-            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); /* Extra scherpte en contrast */
-        }
-        #localTime {
-            position: absolute;
-            top: 20px; /* Net onder "Local Time", middenboven tegen de bovenrand */
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 20px; /* Groot en scherp */
-            color: white; /* Felle witte letters */
-            background: transparent; /* Volledig transparant */
-            padding: 2px 12px;
-            animation: fadeIn 1s ease-in-out;
-            z-index: 1001;
-            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); /* Extra scherpte en contrast */
-        }
-        #map {
-            position: absolute;
-            top: 0; /* Tegen de bovenrand, rechtsboven */
-            right: 0; /* Tegen de rechter rand */
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid white;
-            z-index: 1001;
-        }
-        #liveLocation {
-            position: absolute;
-            bottom: 120px; /* Net onder de kaart (120px hoogte), rechtsboven */
-            right: 10px; /* Dichter bij de kaart, rechts */
-            font-size: 20px; /* Groter en scherper voor IRLPro */
-            color: #ff0000; /* Felrood voor zichtbaarheid */
-            animation: blink 2s infinite;
-            z-index: 1001;
-            background: transparent; /* Volledig transparant, zoals gevraagd */
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); /* Sterkere schaduw voor scherpte en contrast */
+        #city { font-size: 22px; }
+        #temp { font-size: 20px; }
+        #desc { font-size: 18px; }
+        #wind { font-size: 18px; }
+        #humidity { font-size: 18px; }
+        #sun { font-size: 18px; }
+        /* Tijdelijk uitschakelen van de kaart, tijd, en live location */
+        .time, .map, .live-location {
+            display: none; /* Verberg deze elementen */
         }
         @keyframes fadeIn {
             0% { opacity: 0; }
@@ -98,7 +52,7 @@
     </style>
 </head>
 <body>
-    <div class="overlay">
+    <div class="weather">
         <span id="city">Weather in Rotterdam</span>
         <span id="temp">Loading temperature...</span>
         <span id="desc">Loading weather...</span>
@@ -106,10 +60,11 @@
         <span id="humidity">Loading humidity...</span>
         <span id="sun">Loading sun times...</span>
     </div>
-    <div id="map"></div>
-    <div id="timeLabel">Local Time</div>
-    <div id="localTime">Loading time...</div>
-    <div id="liveLocation">live location</div>
+    <!-- Tijdelijk uitgeschakelde elementen (commentaar of verwijderd) -->
+    <!-- <div class="map" id="map"></div> -->
+    <!-- <div class="time" id="timeLabel">Local Time</div> -->
+    <!-- <div class="time" id="localTime">Loading time...</div> -->
+    <!-- <div class="live-location" id="liveLocation">live location</div> -->
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCabgR-c8vRUOoXZIzaamRA1Z7QMY1Za8s&callback=initMap" async defer></script>
     <script>
@@ -157,67 +112,40 @@
 
         let map;
         function initMap() {
-            map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 15,
-                center: { lat: lat, lng: lon },
-                mapTypeId: "roadmap",
-                disableDefaultUI: true,
-                styles: [{ featureType: "all", stylers: [{ saturation: -20 }] }]
-            });
-            new google.maps.Marker({
-                position: { lat: lat, lng: lon },
-                map: map,
-                title: "You are here"
-            });
+            // Tijdelijk uitschakelen van de kaart, dus deze functie kan leeg blijven of worden verwijderd
+            // map = new google.maps.Map(document.getElementById("map"), {
+            //     zoom: 15,
+            //     center: { lat: lat, lng: lon },
+            //     mapTypeId: "roadmap",
+            //     disableDefaultUI: true,
+            //     styles: [{ featureType: "all", stylers: [{ saturation: -20 }] }]
+            // });
+            // new google.maps.Marker({
+            //     position: { lat: lat, lng: lon },
+            //     map: map,
+            //     title: "You are here"
+            // });
         }
 
         function updateLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        lat = position.coords.latitude;
-                        lon = position.coords.longitude;
-                        console.log("Current position:", lat, lon);
-                        map.setCenter({ lat: lat, lng: lon });
-                        const marker = new google.maps.Marker({
-                            position: { lat: lat, lng: lon },
-                            map: map,
-                            title: "You are here"
-                        });
-                        fetchWeather();
-                    },
-                    (error) => {
-                        console.log("Location error:", error.code, error.message);
-                        lat = 51.9225;
-                        lon = 4.4792;
-                        map.setCenter({ lat: lat, lng: lon });
-                        fetchWeather();
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            } else {
-                console.log("Geolocation not supported, using Rotterdam");
-                lat = 51.9225;
-                lon = 4.4792;
-                map.setCenter({ lat: lat, lng: lon });
-                fetchWeather();
-            }
+            // Tijdelijk uitschakelen van locatie-updates, maar behouden voor later gebruik
+            lat = 51.9225; // Rotterdam als fallback
+            lon = 4.4792;
+            fetchWeather();
         }
 
-        // Voeg lokale tijd toe (in Engels, 24-uurs formaat)
+        // Tijdelijk uitschakelen van lokale tijd
         function updateLocalTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-            document.getElementById("localTime").textContent = timeString;
+            // Deze functie wordt tijdelijk uitgeschakeld
         }
 
-        // Update tijd elke minuut
-        setInterval(updateLocalTime, 60000);
-        updateLocalTime();
-
+        // Update tijd en locatie niet, behalve weerbericht
         fetchWeather();
-        updateLocation();
-        setInterval(updateLocation, 300000);
+        // updateLocation(); // Tijdelijk uitgeschakeld
+        // setInterval(updateLocation, 300000); // Tijdelijk uitgeschakeld
+
+        // setInterval(updateLocalTime, 60000); // Tijdelijk uitgeschakeld
+        // updateLocalTime(); // Tijdelijk uitgeschakeld
     </script>
 </body>
 </html>
